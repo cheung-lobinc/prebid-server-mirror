@@ -115,6 +115,11 @@ func (bidder *BidderAdapter) RequestBid(ctx context.Context, request *openrtb.Bi
 		HTTPCalls: make([]*openrtb_ext.ExtHttpCall, 0, len(reqData)),
 	}
 
+	// If request's currency is only one, we use it as the default currency
+	if len(request.Cur) == 1 {
+		seatBid.Currency = request.Cur[0]
+	}
+
 	firstHTTPCallCurrency := ""
 
 	// If the bidder made multiple requests, we still want them to enter as many bids as possible...
