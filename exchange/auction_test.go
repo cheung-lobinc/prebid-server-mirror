@@ -73,27 +73,27 @@ func loadCacheSpec(filename string) (*cacheSpec, error) {
 
 func runCacheSpec(t *testing.T, fileDisplayName string, specData *cacheSpec) {
 	// bid := make([]pbsOrtbBid, 5)
-	var bid *pbsOrtbBid
-	winningBidsByBidder := make(map[string]map[openrtb_ext.BidderName]*pbsOrtbBid)
-	roundedPrices := make(map[*pbsOrtbBid]string)
+	var bid *PBSOrtbBid
+	winningBidsByBidder := make(map[string]map[openrtb_ext.BidderName]*PBSOrtbBid)
+	roundedPrices := make(map[*PBSOrtbBid]string)
 	for i, pbsBid := range specData.PbsBids {
 		if _, ok := winningBidsByBidder[pbsBid.Bid.ID]; !ok {
-			winningBidsByBidder[pbsBid.Bid.ID] = make(map[openrtb_ext.BidderName]*pbsOrtbBid)
+			winningBidsByBidder[pbsBid.Bid.ID] = make(map[openrtb_ext.BidderName]*PBSOrtbBid)
 		}
-		bid = &pbsOrtbBid{
-			bid:     pbsBid.Bid,
-			bidType: pbsBid.BidType,
+		bid = &PBSOrtbBid{
+			Bid:     pbsBid.Bid,
+			BidType: pbsBid.BidType,
 		}
 		winningBidsByBidder[pbsBid.Bid.ID][pbsBid.Bidder] = bid
-		roundedPrices[bid] = strconv.FormatFloat(bid.bid.Price, 'f', 2, 64)
+		roundedPrices[bid] = strconv.FormatFloat(bid.Bid.Price, 'f', 2, 64)
 		// Marshal the bid for the expected cacheables
-		cjson, _ := json.Marshal(bid.bid)
+		cjson, _ := json.Marshal(bid.Bid)
 		specData.ExpectedCacheables[i].Data = cjson
 	}
 	ctx := context.Background()
 	cache := &mockCache{}
 
-	testAuction := &auction{
+	testAuction := &Auction{
 		winningBidsByBidder: winningBidsByBidder,
 	}
 	_ = testAuction.doCache(ctx, cache, true, false, &specData.BidRequest, 60, &specData.DefaultTTLs)

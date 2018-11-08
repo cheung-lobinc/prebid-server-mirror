@@ -56,7 +56,7 @@ func TestSiteVideo(t *testing.T) {
 	mockAdapter := mockLegacyAdapter{}
 
 	exchangeBidder := adaptLegacyAdapter(&mockAdapter)
-	_, errs := exchangeBidder.requestBid(context.Background(), ortbRequest, openrtb_ext.BidderRubicon, 1.0)
+	_, errs := exchangeBidder.RequestBid(context.Background(), ortbRequest, openrtb_ext.BidderRubicon, 1.0)
 	if len(errs) > 0 {
 		t.Errorf("Unexpected error requesting bids: %v", errs)
 	}
@@ -89,7 +89,7 @@ func TestAppBanner(t *testing.T) {
 	mockAdapter := mockLegacyAdapter{}
 
 	exchangeBidder := adaptLegacyAdapter(&mockAdapter)
-	_, errs := exchangeBidder.requestBid(context.Background(), ortbRequest, openrtb_ext.BidderRubicon, 1.0)
+	_, errs := exchangeBidder.RequestBid(context.Background(), ortbRequest, openrtb_ext.BidderRubicon, 1.0)
 	if len(errs) > 0 {
 		t.Errorf("Unexpected error requesting bids: %v", errs)
 	}
@@ -134,7 +134,7 @@ func TestBidTransforms(t *testing.T) {
 	}
 
 	exchangeBidder := adaptLegacyAdapter(&mockAdapter)
-	seatBid, errs := exchangeBidder.requestBid(context.Background(), newAppOrtbRequest(), openrtb_ext.BidderRubicon, bidAdjustment)
+	seatBid, errs := exchangeBidder.RequestBid(context.Background(), newAppOrtbRequest(), openrtb_ext.BidderRubicon, bidAdjustment)
 	if len(errs) != 1 {
 		t.Fatalf("Bad error count. Expected 1, got %d", len(errs))
 	}
@@ -142,39 +142,39 @@ func TestBidTransforms(t *testing.T) {
 		t.Errorf("Unexpected error message. Got %s", errs[0].Error())
 	}
 
-	if len(seatBid.bids) != 1 {
-		t.Fatalf("Bad bid count. Expected 1, got %d", len(seatBid.bids))
+	if len(seatBid.Bids) != 1 {
+		t.Fatalf("Bad bid count. Expected 1, got %d", len(seatBid.Bids))
 	}
-	theBid := seatBid.bids[0]
-	if theBid.bidType != openrtb_ext.BidTypeBanner {
-		t.Errorf("Bad BidType. Expected banner, got %s", theBid.bidType)
+	theBid := seatBid.Bids[0]
+	if theBid.BidType != openrtb_ext.BidTypeBanner {
+		t.Errorf("Bad BidType. Expected banner, got %s", theBid.BidType)
 	}
-	if theBid.bid.ID != legalBid.BidID {
-		t.Errorf("Bad id. Expected %s, got %s", legalBid.NURL, theBid.bid.NURL)
+	if theBid.Bid.ID != legalBid.BidID {
+		t.Errorf("Bad id. Expected %s, got %s", legalBid.NURL, theBid.Bid.NURL)
 	}
-	if theBid.bid.ImpID != legalBid.AdUnitCode {
-		t.Errorf("Bad impid. Expected %s, got %s", legalBid.AdUnitCode, theBid.bid.ImpID)
+	if theBid.Bid.ImpID != legalBid.AdUnitCode {
+		t.Errorf("Bad impid. Expected %s, got %s", legalBid.AdUnitCode, theBid.Bid.ImpID)
 	}
-	if theBid.bid.CrID != legalBid.Creative_id {
-		t.Errorf("Bad creativeid. Expected %s, got %s", legalBid.Creative_id, theBid.bid.CrID)
+	if theBid.Bid.CrID != legalBid.Creative_id {
+		t.Errorf("Bad creativeid. Expected %s, got %s", legalBid.Creative_id, theBid.Bid.CrID)
 	}
-	if theBid.bid.Price != initialBidPrice*bidAdjustment {
-		t.Errorf("Bad price. Expected %f, got %f", initialBidPrice*bidAdjustment, theBid.bid.Price)
+	if theBid.Bid.Price != initialBidPrice*bidAdjustment {
+		t.Errorf("Bad price. Expected %f, got %f", initialBidPrice*bidAdjustment, theBid.Bid.Price)
 	}
-	if theBid.bid.NURL != legalBid.NURL {
-		t.Errorf("Bad NURL. Expected %s, got %s", legalBid.NURL, theBid.bid.NURL)
+	if theBid.Bid.NURL != legalBid.NURL {
+		t.Errorf("Bad NURL. Expected %s, got %s", legalBid.NURL, theBid.Bid.NURL)
 	}
-	if theBid.bid.AdM != legalBid.Adm {
-		t.Errorf("Bad adm. Expected %s, got %s", legalBid.Adm, theBid.bid.AdM)
+	if theBid.Bid.AdM != legalBid.Adm {
+		t.Errorf("Bad adm. Expected %s, got %s", legalBid.Adm, theBid.Bid.AdM)
 	}
-	if theBid.bid.W != legalBid.Width {
-		t.Errorf("Bad adm. Expected %d, got %d", legalBid.Width, theBid.bid.W)
+	if theBid.Bid.W != legalBid.Width {
+		t.Errorf("Bad adm. Expected %d, got %d", legalBid.Width, theBid.Bid.W)
 	}
-	if theBid.bid.H != legalBid.Height {
-		t.Errorf("Bad adm. Expected %d, got %d", legalBid.Height, theBid.bid.H)
+	if theBid.Bid.H != legalBid.Height {
+		t.Errorf("Bad adm. Expected %d, got %d", legalBid.Height, theBid.Bid.H)
 	}
-	if theBid.bid.DealID != legalBid.DealId {
-		t.Errorf("Bad dealid. Expected %s, got %s", legalBid.DealId, theBid.bid.DealID)
+	if theBid.Bid.DealID != legalBid.DealId {
+		t.Errorf("Bad dealid. Expected %s, got %s", legalBid.DealId, theBid.Bid.DealID)
 	}
 }
 
@@ -282,7 +282,7 @@ func TestErrorResponse(t *testing.T) {
 	}
 
 	exchangeBidder := adaptLegacyAdapter(&mockAdapter)
-	_, errs := exchangeBidder.requestBid(context.Background(), ortbRequest, openrtb_ext.BidderRubicon, 1.0)
+	_, errs := exchangeBidder.RequestBid(context.Background(), ortbRequest, openrtb_ext.BidderRubicon, 1.0)
 	if len(errs) != 1 {
 		t.Fatalf("Bad error count. Expected 1, got %d", len(errs))
 	}
@@ -320,14 +320,14 @@ func TestWithTargeting(t *testing.T) {
 		}},
 	}
 	exchangeBidder := adaptLegacyAdapter(&mockAdapter)
-	bid, errs := exchangeBidder.requestBid(context.Background(), ortbRequest, openrtb_ext.BidderFacebook, 1.0)
+	bid, errs := exchangeBidder.RequestBid(context.Background(), ortbRequest, openrtb_ext.BidderFacebook, 1.0)
 	if len(errs) != 0 {
 		t.Fatalf("This should not produce errors. Got %v", errs)
 	}
-	if len(bid.bids) != 1 {
+	if len(bid.Bids) != 1 {
 		t.Fatalf("We should get one bid back.")
 	}
-	if bid.bids[0] == nil {
+	if bid.Bids[0] == nil {
 		t.Errorf("The returned bid should not be nil.")
 	}
 }

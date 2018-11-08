@@ -12,14 +12,14 @@ func TestRandomizeList(t *testing.T) {
 	adapters[1] = openrtb_ext.BidderName("dummy2")
 	adapters[2] = openrtb_ext.BidderName("dummy3")
 
-	randomizeList(adapters)
+	RandomizeList(adapters)
 
 	if len(adapters) != 3 {
 		t.Errorf("RandomizeList, expected a list of 3, found %d", len(adapters))
 	}
 
 	adapters = adapters[0:1]
-	randomizeList(adapters)
+	RandomizeList(adapters)
 
 	if len(adapters) != 1 {
 		t.Errorf("RandomizeList, expected a list of 1, found %d", len(adapters))

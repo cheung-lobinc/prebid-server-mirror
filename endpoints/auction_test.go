@@ -598,6 +598,6 @@ func TestPanicRecovery(t *testing.T) {
 	panicker := func(bidder *pbs.PBSBidder, blables pbsmetrics.AdapterLabels) {
 		panic("panic!")
 	}
-	recovered := recoverSafely(panicker)
+	recovered := RecoverSafely(panicker)
 	recovered(nil, pbsmetrics.AdapterLabels{})
 }

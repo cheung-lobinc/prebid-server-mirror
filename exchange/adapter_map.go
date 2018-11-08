@@ -30,7 +30,7 @@ import (
 // The newAdapterMap function is segregated to its own file to make it a simple and clean location for each Adapter
 // to register itself. No wading through Exchange code to find it.
 
-func newAdapterMap(client *http.Client, cfg *config.Configuration, infos adapters.BidderInfos) map[openrtb_ext.BidderName]adaptedBidder {
+func newAdapterMap(client *http.Client, cfg *config.Configuration, infos adapters.BidderInfos) map[openrtb_ext.BidderName]AdaptedBidder {
 	ortbBidders := map[openrtb_ext.BidderName]adapters.Bidder{
 		openrtb_ext.BidderAdform:      adform.NewAdformBidder(client, cfg.Adapters[string(openrtb_ext.BidderAdform)].Endpoint),
 		openrtb_ext.BidderAdkernelAdn: adkernelAdn.NewAdkernelAdnAdapter(cfg.Adapters[strings.ToLower(string(openrtb_ext.BidderAdkernelAdn))].Endpoint),
@@ -66,12 +66,12 @@ func newAdapterMap(client *http.Client, cfg *config.Configuration, infos adapter
 		openrtb_ext.BidderPulsepoint: pulsepoint.NewPulsePointAdapter(adapters.DefaultHTTPAdapterConfig, cfg.Adapters[string(openrtb_ext.BidderPulsepoint)].Endpoint),
 	}
 
-	allBidders := make(map[openrtb_ext.BidderName]adaptedBidder, len(ortbBidders)+len(legacyBidders))
+	allBidders := make(map[openrtb_ext.BidderName]AdaptedBidder, len(ortbBidders)+len(legacyBidders))
 	for name, bidder := range legacyBidders {
 		allBidders[name] = adaptLegacyAdapter(bidder)
 	}
 	for name, bidder := range ortbBidders {
-		allBidders[name] = adaptBidder(adapters.EnforceBidderInfo(bidder, infos[string(name)]), client)
+		allBidders[name] = AdaptBidder(adapters.EnforceBidderInfo(bidder, infos[string(name)]), client)
 	}
 	return allBidders
 }

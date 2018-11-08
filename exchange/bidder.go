@@ -15,7 +15,7 @@ import (
 	"golang.org/x/net/context/ctxhttp"
 )
 
-// adaptedBidder defines the contract needed to participate in an Auction within an Exchange.
+// AdaptedBidder defines the contract needed to participate in an Auction within an Exchange.
 //
 // This interface exists to help segregate core auction logic.
 //
@@ -24,8 +24,8 @@ import (
 //
 // This interface differs from adapters.Bidder to help minimize code duplication across the
 // adapters.Bidder implementations.
-type adaptedBidder interface {
-	// requestBid fetches bids for the given request.
+type AdaptedBidder interface {
+	// RequestBid fetches bids for the given request.
 	//
 	// An adaptedBidder *may* return two non-nil values here. Errors should describe situations which
 	// make the bid (or no-bid) "less than ideal." Common examples include:
@@ -37,55 +37,55 @@ type adaptedBidder interface {
 	//
 	// Any errors will be user-facing in the API.
 	// Error messages should help publishers understand what might account for "bad" bids.
-	requestBid(ctx context.Context, request *openrtb.BidRequest, name openrtb_ext.BidderName, bidAdjustment float64) (*pbsOrtbSeatBid, []error)
+	RequestBid(ctx context.Context, request *openrtb.BidRequest, name openrtb_ext.BidderName, bidAdjustment float64) (*PBSOrtbSeatBid, []error)
 }
 
-// pbsOrtbBid is a Bid returned by an adaptedBidder.
+// PBSOrtbBid is a Bid returned by an adaptedBidder.
 //
-// pbsOrtbBid.bid.Ext will become "response.seatbid[i].bid.ext.bidder" in the final OpenRTB response.
-// pbsOrtbBid.bidType will become "response.seatbid[i].bid.ext.prebid.type" in the final OpenRTB response.
-// pbsOrtbBid.bidTargets does not need to be filled out by the Bidder. It will be set later by the exchange.
-type pbsOrtbBid struct {
-	bid        *openrtb.Bid
-	bidType    openrtb_ext.BidType
-	bidTargets map[string]string
+// PBSOrtbBid.bid.Ext will become "response.seatbid[i].bid.ext.bidder" in the final OpenRTB response.
+// PBSOrtbBid.bidType will become "response.seatbid[i].bid.ext.prebid.type" in the final OpenRTB response.
+// PBSOrtbBid.bidTargets does not need to be filled out by the Bidder. It will be set later by the exchange.
+type PBSOrtbBid struct {
+	Bid        *openrtb.Bid
+	BidType    openrtb_ext.BidType
+	BidTargets map[string]string
 }
 
-// pbsOrtbSeatBid is a SeatBid returned by an adaptedBidder.
+// PBSOrtbSeatBid is a SeatBid returned by an adaptedBidder.
 //
 // This is distinct from the openrtb.SeatBid so that the prebid-server ext can be passed back with typesafety.
-type pbsOrtbSeatBid struct {
-	// bids is the list of bids which this adaptedBidder wishes to make.
-	bids []*pbsOrtbBid
-	// currency is the currency in which the bids are made.
+type PBSOrtbSeatBid struct {
+	// Bids is the list of Bids which this adaptedBidder wishes to make.
+	Bids []*PBSOrtbBid
+	// Currency is the Currency in which the bids are made.
 	// Should be a valid curreny ISO code.
-	currency string
-	// httpCalls is the list of debugging info. It should only be populated if the request.test == 1.
+	Currency string
+	// HTTPCalls is the list of debugging info. It should only be populated if the request.test == 1.
 	// This will become response.ext.debug.httpcalls.{bidder} on the final Response.
-	httpCalls []*openrtb_ext.ExtHttpCall
-	// ext contains the extension for this seatbid.
-	// if len(bids) > 0, this will become response.seatbid[i].ext.{bidder} on the final OpenRTB response.
+	HTTPCalls []*openrtb_ext.ExtHttpCall
+	// Ext contains the extension for this seatbid.
+	// if len(bids) > 0, this will become response.seatbid[i].Ext.{bidder} on the final OpenRTB response.
 	// if len(bids) == 0, this will be ignored because the OpenRTB spec doesn't allow a SeatBid with 0 Bids.
-	ext json.RawMessage
+	Ext json.RawMessage
 }
 
-// adaptBidder converts an adapters.Bidder into an exchange.adaptedBidder.
+// AdaptBidder converts an adapters.Bidder into an exchange.adaptedBidder.
 //
 // The name refers to the "Adapter" architecture pattern, and should not be confused with a Prebid "Adapter"
 // (which is being phased out and replaced by Bidder for OpenRTB auctions)
-func adaptBidder(bidder adapters.Bidder, client *http.Client) adaptedBidder {
-	return &bidderAdapter{
+func AdaptBidder(bidder adapters.Bidder, client *http.Client) AdaptedBidder {
+	return &BidderAdapter{
 		Bidder: bidder,
 		Client: client,
 	}
 }
 
-type bidderAdapter struct {
+type BidderAdapter struct {
 	Bidder adapters.Bidder
 	Client *http.Client
 }
 
-func (bidder *bidderAdapter) requestBid(ctx context.Context, request *openrtb.BidRequest, name openrtb_ext.BidderName, bidAdjustment float64) (*pbsOrtbSeatBid, []error) {
+func (bidder *BidderAdapter) RequestBid(ctx context.Context, request *openrtb.BidRequest, name openrtb_ext.BidderName, bidAdjustment float64) (*PBSOrtbSeatBid, []error) {
 	reqData, errs := bidder.Bidder.MakeRequests(request)
 
 	if len(reqData) == 0 {
@@ -109,10 +109,10 @@ func (bidder *bidderAdapter) requestBid(ctx context.Context, request *openrtb.Bi
 		}
 	}
 
-	seatBid := &pbsOrtbSeatBid{
-		bids:      make([]*pbsOrtbBid, 0, len(reqData)),
-		currency:  "USD",
-		httpCalls: make([]*openrtb_ext.ExtHttpCall, 0, len(reqData)),
+	seatBid := &PBSOrtbSeatBid{
+		Bids:      make([]*PBSOrtbBid, 0, len(reqData)),
+		Currency:  "USD",
+		HTTPCalls: make([]*openrtb_ext.ExtHttpCall, 0, len(reqData)),
 	}
 
 	firstHTTPCallCurrency := ""
@@ -123,7 +123,7 @@ func (bidder *bidderAdapter) requestBid(ctx context.Context, request *openrtb.Bi
 		httpInfo := <-responseChannel
 		// If this is a test bid, capture debugging info from the requests.
 		if request.Test == 1 {
-			seatBid.httpCalls = append(seatBid.httpCalls, makeExt(httpInfo))
+			seatBid.HTTPCalls = append(seatBid.HTTPCalls, makeExt(httpInfo))
 		}
 
 		if httpInfo.err == nil {
@@ -153,9 +153,9 @@ func (bidder *bidderAdapter) requestBid(ctx context.Context, request *openrtb.Bi
 							// TODO #280: Convert the bid price
 							bidResponse.Bids[i].Bid.Price = bidResponse.Bids[i].Bid.Price * bidAdjustment
 						}
-						seatBid.bids = append(seatBid.bids, &pbsOrtbBid{
-							bid:     bidResponse.Bids[i].Bid,
-							bidType: bidResponse.Bids[i].BidType,
+						seatBid.Bids = append(seatBid.Bids, &PBSOrtbBid{
+							Bid:     bidResponse.Bids[i].Bid,
+							BidType: bidResponse.Bids[i].BidType,
 						})
 					}
 				} else {
@@ -195,7 +195,7 @@ func makeExt(httpInfo *httpCallInfo) *openrtb_ext.ExtHttpCall {
 
 // doRequest makes a request, handles the response, and returns the data needed by the
 // Bidder interface.
-func (bidder *bidderAdapter) doRequest(ctx context.Context, req *adapters.RequestData) *httpCallInfo {
+func (bidder *BidderAdapter) doRequest(ctx context.Context, req *adapters.RequestData) *httpCallInfo {
 	httpReq, err := http.NewRequest(req.Method, req.Uri, bytes.NewBuffer(req.Body))
 	if err != nil {
 		return &httpCallInfo{

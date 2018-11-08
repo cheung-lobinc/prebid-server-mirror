@@ -144,11 +144,11 @@ func newRaceCheckingRequest(t *testing.T) *openrtb.BidRequest {
 }
 
 func TestPanicRecovery(t *testing.T) {
-	chBids := make(chan *bidResponseWrapper, 1)
+	chBids := make(chan *BidResponseWrapper, 1)
 	panicker := func(aName openrtb_ext.BidderName, coreBidder openrtb_ext.BidderName, request *openrtb.BidRequest, bidlabels *pbsmetrics.AdapterLabels) {
 		panic("panic!")
 	}
-	recovered := recoverSafely(panicker, chBids)
+	recovered := RecoverSafely(panicker, chBids)
 	recovered(openrtb_ext.BidderAppnexus, openrtb_ext.BidderAppnexus, nil, nil)
 }
 
@@ -345,7 +345,7 @@ func extractResponseTimes(t *testing.T, context string, bid *openrtb.BidResponse
 }
 
 func newExchangeForTests(t *testing.T, filename string, expectations map[string]*bidderSpec, aliases map[string]string) Exchange {
-	adapters := make(map[openrtb_ext.BidderName]adaptedBidder)
+	adapters := make(map[openrtb_ext.BidderName]AdaptedBidder)
 	for _, bidderName := range openrtb_ext.BidderMap {
 		if spec, ok := expectations[string(bidderName)]; ok {
 			adapters[bidderName] = &validatingBidder{
@@ -446,7 +446,7 @@ type validatingBidder struct {
 	mockResponses map[string]bidderResponse
 }
 
-func (b *validatingBidder) requestBid(ctx context.Context, request *openrtb.BidRequest, name openrtb_ext.BidderName, bidAdjustment float64) (seatBid *pbsOrtbSeatBid, errs []error) {
+func (b *validatingBidder) RequestBid(ctx context.Context, request *openrtb.BidRequest, name openrtb_ext.BidderName, bidAdjustment float64) (seatBid *PBSOrtbSeatBid, errs []error) {
 	if expectedRequest, ok := b.expectations[string(name)]; ok {
 		if expectedRequest != nil {
 			if expectedRequest.BidAdjustment != bidAdjustment {
@@ -460,16 +460,16 @@ func (b *validatingBidder) requestBid(ctx context.Context, request *openrtb.BidR
 
 	if mockResponse, ok := b.mockResponses[string(name)]; ok {
 		if mockResponse.SeatBid != nil {
-			bids := make([]*pbsOrtbBid, len(mockResponse.SeatBid.Bids))
+			bids := make([]*PBSOrtbBid, len(mockResponse.SeatBid.Bids))
 			for i := 0; i < len(bids); i++ {
-				bids[i] = &pbsOrtbBid{
-					bid:     mockResponse.SeatBid.Bids[i].Bid,
-					bidType: openrtb_ext.BidType(mockResponse.SeatBid.Bids[i].Type),
+				bids[i] = &PBSOrtbBid{
+					Bid:     mockResponse.SeatBid.Bids[i].Bid,
+					BidType: openrtb_ext.BidType(mockResponse.SeatBid.Bids[i].Type),
 				}
 			}
 
-			seatBid = &pbsOrtbSeatBid{
-				bids: bids,
+			seatBid = &PBSOrtbSeatBid{
+				Bids: bids,
 			}
 		}
 
@@ -598,6 +598,6 @@ func (e *mockUsersync) GetId(bidder openrtb_ext.BidderName) (id string, exists b
 
 type panicingAdapter struct{}
 
-func (panicingAdapter) requestBid(ctx context.Context, request *openrtb.BidRequest, name openrtb_ext.BidderName, bidAdjustment float64) (posb *pbsOrtbSeatBid, errs []error) {
+func (panicingAdapter) RequestBid(ctx context.Context, request *openrtb.BidRequest, name openrtb_ext.BidderName, bidAdjustment float64) (posb *PBSOrtbSeatBid, errs []error) {
 	panic("Panic! Panic! The world is ending!")
 }

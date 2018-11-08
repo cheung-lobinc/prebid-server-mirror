@@ -13,12 +13,12 @@ import (
 	"github.com/prebid/prebid-server/pbsmetrics"
 )
 
-// cleanOpenRTBRequests splits the input request into requests which are sanitized for each bidder. Intended behavior is:
+// CleanOpenRTBRequests splits the input request into requests which are sanitized for each bidder. Intended behavior is:
 //
 //   1. BidRequest.Imp[].Ext will only contain the "prebid" field and a "bidder" field which has the params for the intended Bidder.
 //   2. Every BidRequest.Imp[] requested Bids from the Bidder who keys it.
 //   3. BidRequest.User.BuyerUID will be set to that Bidder's ID.
-func cleanOpenRTBRequests(ctx context.Context, orig *openrtb.BidRequest, usersyncs IdFetcher, blables map[openrtb_ext.BidderName]*pbsmetrics.AdapterLabels, labels pbsmetrics.Labels, gDPR gdpr.Permissions, usersyncIfAmbiguous bool) (requestsByBidder map[openrtb_ext.BidderName]*openrtb.BidRequest, aliases map[string]string, errs []error) {
+func CleanOpenRTBRequests(ctx context.Context, orig *openrtb.BidRequest, usersyncs IdFetcher, blables map[openrtb_ext.BidderName]*pbsmetrics.AdapterLabels, labels pbsmetrics.Labels, gDPR gdpr.Permissions, usersyncIfAmbiguous bool) (requestsByBidder map[openrtb_ext.BidderName]*openrtb.BidRequest, aliases map[string]string, errs []error) {
 	impsByBidder, errs := splitImps(orig.Imp)
 	if len(errs) > 0 {
 		return
@@ -53,7 +53,7 @@ func splitBidRequest(req *openrtb.BidRequest, impsByBidder map[string][]openrtb.
 	}
 	for bidder, imps := range impsByBidder {
 		reqCopy := *req
-		coreBidder := resolveBidder(bidder, aliases)
+		coreBidder := ResolveBidder(bidder, aliases)
 		newLabel := pbsmetrics.AdapterLabels{
 			Source:      labels.Source,
 			RType:       labels.RType,
@@ -196,8 +196,8 @@ func copyWithBuyerUID(user *openrtb.User, buyerUID string) *openrtb.User {
 	return user
 }
 
-// resolveBidder returns the known BidderName associated with bidder, if bidder is an alias. If it's not an alias, the bidder is returned.
-func resolveBidder(bidder string, aliases map[string]string) openrtb_ext.BidderName {
+// ResolveBidder returns the known BidderName associated with bidder, if bidder is an alias. If it's not an alias, the bidder is returned.
+func ResolveBidder(bidder string, aliases map[string]string) openrtb_ext.BidderName {
 	if coreBidder, ok := aliases[bidder]; ok {
 		return openrtb_ext.BidderName(coreBidder)
 	}
@@ -233,7 +233,7 @@ func parseAliases(orig *openrtb.BidRequest) (map[string]string, []error) {
 }
 
 // Quick little randomizer for a list of strings. Stuffing it in utils to keep other files clean
-func randomizeList(list []openrtb_ext.BidderName) {
+func RandomizeList(list []openrtb_ext.BidderName) {
 	l := len(list)
 	perm := rand.Perm(l)
 	var j int

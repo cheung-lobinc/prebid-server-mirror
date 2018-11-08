@@ -9,35 +9,35 @@ import (
 func TestAllValidBids(t *testing.T) {
 	brq := &openrtb.BidRequest{}
 
-	bids := make([]*pbsOrtbBid, 3)
+	bids := make([]*PBSOrtbBid, 3)
 
-	bids[0] = &pbsOrtbBid{
-		bid: &openrtb.Bid{
+	bids[0] = &PBSOrtbBid{
+		Bid: &openrtb.Bid{
 			ID:    "one-bid",
 			ImpID: "thisImp",
 			Price: 0.45,
 			CrID:  "thisCreative",
 		},
 	}
-	bids[1] = &pbsOrtbBid{
-		bid: &openrtb.Bid{
+	bids[1] = &PBSOrtbBid{
+		Bid: &openrtb.Bid{
 			ID:    "thatBid",
 			ImpID: "thatImp",
 			Price: 0.40,
 			CrID:  "thatCreative",
 		},
 	}
-	bids[2] = &pbsOrtbBid{
-		bid: &openrtb.Bid{
+	bids[2] = &PBSOrtbBid{
+		Bid: &openrtb.Bid{
 			ID:    "123",
 			ImpID: "456",
 			Price: 0.44,
 			CrID:  "789",
 		},
 	}
-	brw := &bidResponseWrapper{
-		adapterBids: &pbsOrtbSeatBid{
-			bids: bids,
+	brw := &BidResponseWrapper{
+		AdapterBids: &PBSOrtbSeatBid{
+			Bids: bids,
 		},
 	}
 	assertBids(t, brq, brw, 3, 0)
@@ -45,40 +45,40 @@ func TestAllValidBids(t *testing.T) {
 
 func TestAllBadBids(t *testing.T) {
 	brq := &openrtb.BidRequest{}
-	bids := make([]*pbsOrtbBid, 5)
+	bids := make([]*PBSOrtbBid, 5)
 
-	bids[0] = &pbsOrtbBid{
-		bid: &openrtb.Bid{
+	bids[0] = &PBSOrtbBid{
+		Bid: &openrtb.Bid{
 			ID:    "one-bid",
 			Price: 0.45,
 			CrID:  "thisCreative",
 		},
 	}
-	bids[1] = &pbsOrtbBid{
-		bid: &openrtb.Bid{
+	bids[1] = &PBSOrtbBid{
+		Bid: &openrtb.Bid{
 			ID:    "thatBid",
 			ImpID: "thatImp",
 			CrID:  "thatCreative",
 		},
 	}
-	bids[2] = &pbsOrtbBid{
-		bid: &openrtb.Bid{
+	bids[2] = &PBSOrtbBid{
+		Bid: &openrtb.Bid{
 			ID:    "123",
 			ImpID: "456",
 			Price: 0.44,
 		},
 	}
-	bids[3] = &pbsOrtbBid{
-		bid: &openrtb.Bid{
+	bids[3] = &PBSOrtbBid{
+		Bid: &openrtb.Bid{
 			ImpID: "456",
 			Price: 0.44,
 			CrID:  "blah",
 		},
 	}
-	bids[4] = &pbsOrtbBid{}
-	brw := &bidResponseWrapper{
-		adapterBids: &pbsOrtbSeatBid{
-			bids: bids,
+	bids[4] = &PBSOrtbBid{}
+	brw := &BidResponseWrapper{
+		AdapterBids: &PBSOrtbSeatBid{
+			Bids: bids,
 		},
 	}
 	assertBids(t, brq, brw, 0, 5)
@@ -87,41 +87,41 @@ func TestAllBadBids(t *testing.T) {
 func TestMixeddBids(t *testing.T) {
 	brq := &openrtb.BidRequest{}
 
-	bids := make([]*pbsOrtbBid, 5)
-	bids[0] = &pbsOrtbBid{
-		bid: &openrtb.Bid{
+	bids := make([]*PBSOrtbBid, 5)
+	bids[0] = &PBSOrtbBid{
+		Bid: &openrtb.Bid{
 			ID:    "one-bid",
 			ImpID: "thisImp",
 			Price: 0.45,
 			CrID:  "thisCreative",
 		},
 	}
-	bids[1] = &pbsOrtbBid{
-		bid: &openrtb.Bid{
+	bids[1] = &PBSOrtbBid{
+		Bid: &openrtb.Bid{
 			ID:    "thatBid",
 			ImpID: "thatImp",
 			CrID:  "thatCreative",
 		},
 	}
-	bids[2] = &pbsOrtbBid{
-		bid: &openrtb.Bid{
+	bids[2] = &PBSOrtbBid{
+		Bid: &openrtb.Bid{
 			ID:    "123",
 			ImpID: "456",
 			Price: 0.44,
 			CrID:  "789",
 		},
 	}
-	bids[3] = &pbsOrtbBid{
-		bid: &openrtb.Bid{
+	bids[3] = &PBSOrtbBid{
+		Bid: &openrtb.Bid{
 			ImpID: "456",
 			Price: 0.44,
 			CrID:  "blah",
 		},
 	}
-	bids[4] = &pbsOrtbBid{}
-	brw := &bidResponseWrapper{
-		adapterBids: &pbsOrtbSeatBid{
-			bids: bids,
+	bids[4] = &PBSOrtbBid{}
+	brw := &BidResponseWrapper{
+		AdapterBids: &PBSOrtbSeatBid{
+			Bids: bids,
 		},
 	}
 	assertBids(t, brq, brw, 2, 3)
@@ -209,17 +209,17 @@ func TestCurrencyBids(t *testing.T) {
 			Cur: tc.brqCur,
 		}
 
-		bids := make([]*pbsOrtbBid, 2)
-		bids[0] = &pbsOrtbBid{
-			bid: &openrtb.Bid{
+		bids := make([]*PBSOrtbBid, 2)
+		bids[0] = &PBSOrtbBid{
+			Bid: &openrtb.Bid{
 				ID:    "one-bid",
 				ImpID: "thisImp",
 				Price: 0.45,
 				CrID:  "thisCreative",
 			},
 		}
-		bids[1] = &pbsOrtbBid{
-			bid: &openrtb.Bid{
+		bids[1] = &PBSOrtbBid{
+			Bid: &openrtb.Bid{
 				ID:    "thatBid",
 				ImpID: "thatImp",
 				Price: 0.44,
@@ -227,10 +227,10 @@ func TestCurrencyBids(t *testing.T) {
 			},
 		}
 
-		brw := &bidResponseWrapper{
-			adapterBids: &pbsOrtbSeatBid{
-				bids:     bids,
-				currency: tc.brpCur,
+		brw := &BidResponseWrapper{
+			AdapterBids: &PBSOrtbSeatBid{
+				Bids:     bids,
+				Currency: tc.brpCur,
 			},
 		}
 
@@ -247,12 +247,12 @@ func TestCurrencyBids(t *testing.T) {
 	}
 }
 
-func assertBids(t *testing.T, brq *openrtb.BidRequest, brw *bidResponseWrapper, ebids int, eerrs int) {
-	errs := brw.validateBids(brq)
+func assertBids(t *testing.T, brq *openrtb.BidRequest, brw *BidResponseWrapper, ebids int, eerrs int) {
+	errs := brw.ValidateBids(brq)
 	if len(errs) != eerrs {
 		t.Errorf("Expected %d Errors validating bids, found %d", eerrs, len(errs))
 	}
-	if len(brw.adapterBids.bids) != ebids {
-		t.Errorf("Expected %d bids, found %d bids", ebids, len(brw.adapterBids.bids))
+	if len(brw.AdapterBids.Bids) != ebids {
+		t.Errorf("Expected %d bids, found %d bids", ebids, len(brw.AdapterBids.Bids))
 	}
 }

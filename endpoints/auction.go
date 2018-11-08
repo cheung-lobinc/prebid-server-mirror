@@ -202,7 +202,7 @@ func (a *auction) auction(w http.ResponseWriter, r *http.Request, _ httprouter.P
 				}
 			}
 			sentBids++
-			bidderRunner := recoverSafely(func(bidder *pbs.PBSBidder, blables pbsmetrics.AdapterLabels) {
+			bidderRunner := RecoverSafely(func(bidder *pbs.PBSBidder, blables pbsmetrics.AdapterLabels) {
 				start := time.Now()
 				bidList, err := ex.Call(ctx, req, bidder)
 				a.metricsEngine.RecordAdapterTime(blabels, time.Since(start))
@@ -312,7 +312,7 @@ func (a *auction) auction(w http.ResponseWriter, r *http.Request, _ httprouter.P
 	enc.Encode(resp)
 }
 
-func recoverSafely(inner func(*pbs.PBSBidder, pbsmetrics.AdapterLabels)) func(*pbs.PBSBidder, pbsmetrics.AdapterLabels) {
+func RecoverSafely(inner func(*pbs.PBSBidder, pbsmetrics.AdapterLabels)) func(*pbs.PBSBidder, pbsmetrics.AdapterLabels) {
 	return func(bidder *pbs.PBSBidder, labels pbsmetrics.AdapterLabels) {
 		defer func() {
 			if r := recover(); r != nil {
